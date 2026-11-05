@@ -1,29 +1,36 @@
 <script setup lang="ts">
+const route = useRoute()
 const { me, loading, join } = useListMembers()
+
+const TABS = [
+  { to: '/', glyph: '≡', label: 'Lista' },
+  { to: '/historial', glyph: '↺', label: 'Historial' },
+  { to: '/nfc', glyph: 'NFC', label: 'Tag NFC' },
+]
+
+/** El modo tienda ocupa la pantalla entera: sin navegación ni buscador. */
+const fullscreen = computed(() => route.path === '/comprar')
+const isList = computed(() => route.path === '/')
 </script>
 
 <template>
   <div class="shell">
-    <p v-if="loading" class="boot muted">Cargando la lista…</p>
+    <p v-if="loading" class="boot">Cargando la lista…</p>
 
     <NameGate v-else-if="!me" @join="join" />
 
     <template v-else>
       <slot />
 
-      <nav class="nav">
-        <NuxtLink to="/">
-          <span class="icon">☰</span>
-          <span>Lista</span>
-        </NuxtLink>
-        <NuxtLink to="/historial">
-          <span class="icon">↺</span>
-          <span>Historial</span>
-        </NuxtLink>
-        <NuxtLink to="/nfc">
-          <span class="icon">NFC</span>
-          <span>Tag NFC</span>
-        </NuxtLink>
+      <AddItemBar v-if="isList" />
+
+      <nav v-if="!fullscreen" class="nav">
+        <div class="inner">
+          <NuxtLink v-for="tab in TABS" :key="tab.to" :to="tab.to" class="tab">
+            <span class="tab-pill">{{ tab.glyph }}</span>
+            <span class="label">{{ tab.label }}</span>
+          </NuxtLink>
+        </div>
       </nav>
     </template>
   </div>
@@ -33,6 +40,7 @@ const { me, loading, join } = useListMembers()
 .boot {
   padding: 72px 24px;
   text-align: center;
+  color: var(--muted);
 }
 
 .nav {
@@ -40,40 +48,46 @@ const { me, loading, join } = useListMembers()
   left: 0;
   right: 0;
   bottom: 0;
-  height: var(--nav-h);
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  align-items: center;
-  max-width: 560px;
-  margin: 0 auto;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
+  background: var(--track);
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-.nav a {
-  display: grid;
-  justify-items: center;
-  gap: 2px;
-  text-decoration: none;
-  color: var(--text-soft);
-  font-size: 12px;
-  padding: 8px 0;
+.inner {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 12px 10px;
 }
 
-.nav a.router-link-exact-active {
-  color: var(--text);
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  text-decoration: none;
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.tab-pill {
+  width: 56px;
+  height: 30px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
   font-weight: 600;
 }
 
-.icon {
-  font-size: 15px;
-  line-height: 1.4;
+/* La pestaña activa: píldora verde detrás del icono y etiqueta en negrita. */
+.tab.router-link-exact-active .tab-pill {
+  background: var(--mint);
 }
 
-.nav a.router-link-exact-active .icon {
-  background: #d9f99d;
-  border-radius: 999px;
-  padding: 2px 14px;
+.tab.router-link-exact-active .label {
+  font-weight: 600;
 }
 </style>

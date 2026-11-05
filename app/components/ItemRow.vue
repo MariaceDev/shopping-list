@@ -4,7 +4,7 @@ import { colorForIndex } from '#shared/types/shopping'
 
 const props = defineProps<{ item: ShoppingItem, members: ListMember[] }>()
 
-defineEmits<{ qty: [qty: number], toggle: [] }>()
+defineEmits<{ qty: [qty: number] }>()
 
 const author = computed(
   () => props.members.find((m) => m.uid === props.item.addedByUid) ?? null,
@@ -14,20 +14,25 @@ const when = computed(() => relativeTime(props.item.createdAt))
 </script>
 
 <template>
-  <li class="row card" :class="{ done: item.done }">
-    <button class="main" type="button" @click="$emit('toggle')">
-      <span class="name">{{ item.name }}</span>
-      <span class="meta">
-        <AppAvatar :name="item.addedByName" :color="authorColor" :size="22" />
-        <span class="muted">{{ item.addedByName }}</span>
-        <span v-if="when" class="muted">· {{ when }}</span>
-      </span>
-    </button>
+  <li class="row card">
+    <div class="main">
+      <p class="name">{{ item.name }}</p>
+      <p class="meta">
+        <AppAvatar :name="item.addedByName" :color="authorColor" :size="16" />
+        <span class="ellipsis">
+          {{ item.addedByName }}<template v-if="when"> · {{ when }}</template>
+        </span>
+      </p>
+    </div>
 
     <div class="stepper">
-      <button type="button" aria-label="Quitar uno" @click="$emit('qty', item.qty - 1)">−</button>
+      <button type="button" class="step" aria-label="Quitar uno" @click="$emit('qty', item.qty - 1)">
+        −
+      </button>
       <span class="qty">{{ item.qty }}</span>
-      <button type="button" aria-label="Añadir uno" @click="$emit('qty', item.qty + 1)">+</button>
+      <button type="button" class="step step-on" aria-label="Añadir uno" @click="$emit('qty', item.qty + 1)">
+        +
+      </button>
     </div>
   </li>
 </template>
@@ -40,58 +45,59 @@ const when = computed(() => relativeTime(props.item.createdAt))
   padding: 14px 14px 14px 18px;
 }
 
-.row.done .name {
-  text-decoration: line-through;
-  color: var(--text-soft);
-}
-
 .main {
-  flex: 1;
-  display: grid;
-  gap: 4px;
-  justify-items: start;
-  text-align: left;
-  background: none;
-  border: 0;
-  padding: 0;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .name {
-  font-size: 19px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 500;
 }
 
 .meta {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 14px;
+  min-width: 0;
+}
+
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stepper {
+  flex: none;
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: #f5f5f4;
+  gap: 2px;
+  background: var(--track);
   border-radius: 999px;
-  padding: 4px;
-  flex: none;
+  padding: 3px;
 }
 
-.stepper button {
-  width: 34px;
-  height: 34px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--surface);
-  font-size: 18px;
+.step {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 20px;
   line-height: 1;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 8%);
+}
+
+/* Solo el "+" va en círculo blanco: es la acción que el diseño destaca. */
+.step-on {
+  background: var(--surface);
 }
 
 .qty {
-  min-width: 26px;
+  min-width: 22px;
   text-align: center;
+  font-size: 16px;
   font-weight: 600;
 }
 </style>

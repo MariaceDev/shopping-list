@@ -10,14 +10,19 @@
 /** Id de la lista por defecto. Una casa, una lista. */
 export const DEFAULT_LIST_ID = 'casa'
 
-/** Colores de avatar que se reparten entre los miembros, por orden de llegada. */
+/**
+ * Colores de avatar que se reparten entre los miembros, por orden de llegada.
+ *
+ * Primero los tres claros: son los que usa el diseño para las personas. El
+ * amatista y el teal van al final porque en el prototipo son el color del
+ * texto y de los botones, y de avatar se confunden con la interfaz.
+ */
 export const MEMBER_COLORS = [
-  '#14b8a6', // turquesa
-  '#a3e635', // lima
-  '#f59e0b', // ámbar
-  '#f472b6', // rosa
-  '#818cf8', // índigo
-  '#fb7185', // coral
+  '#1DD3B0', // turquesa
+  '#AFFC41', // verde lima
+  '#B2FF9E', // verde claro
+  '#086375', // teal tormentoso
+  '#3C1642', // amatista oscuro
 ] as const
 
 /** Un producto de la lista. */
@@ -43,6 +48,24 @@ export interface ListMember {
   joinedAt: number
 }
 
+/** Un producto tal y como quedó al cerrar una compra. */
+export interface TripItem {
+  name: string
+  qty: number
+}
+
+/**
+ * Una compra terminada: lo que alimenta la pantalla de Historial.
+ * Solo se crea, nunca se edita ni se borra.
+ */
+export interface ShoppingTrip {
+  id: string
+  at: number
+  byUid: string
+  byName: string
+  items: TripItem[]
+}
+
 /** Qué se puede registrar en el historial. */
 export type HistoryAction = 'added' | 'removed' | 'bought' | 'qty-changed'
 
@@ -65,4 +88,24 @@ export function initialOf(name: string): string {
 /** Color estable para un miembro, a partir de cuántos había antes. */
 export function colorForIndex(index: number): string {
   return MEMBER_COLORS[index % MEMBER_COLORS.length]!
+}
+
+/**
+ * Tinta legible encima de un color de la paleta. La paleta mezcla colores
+ * muy oscuros (amatista, teal) con otros muy claros (lima, verde), así que
+ * el contraste se calcula en vez de fijarse a mano.
+ */
+export function inkFor(color: string): string {
+  const hex = color.replace('#', '')
+  const full = hex.length === 3 ? hex.replace(/./g, (c) => c + c) : hex
+
+  const toLinear = (value: number) =>
+    value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
+
+  const r = toLinear(parseInt(full.slice(0, 2), 16) / 255)
+  const g = toLinear(parseInt(full.slice(2, 4), 16) / 255)
+  const b = toLinear(parseInt(full.slice(4, 6), 16) / 255)
+
+  // Luminancia relativa (WCAG 2.1).
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.4 ? '#3C1642' : '#FFFFFF'
 }

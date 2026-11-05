@@ -1,15 +1,32 @@
+/*
+ * Tokens tomados del prototipo de Claude Design (.claude/vue/ListaCompra.vue).
+ * Los valores son los suyos: si algo no cuadra, manda el prototipo.
+ */
 :root {
+  --plum: #3c1642;
+  --teal: #086375;
+  --turquoise: #1dd3b0;
+  --lime: #affc41;
+  --mint: #b2ff9e;
+
   --bg: #fafafa;
   --surface: #ffffff;
-  --border: #e7e5e4;
-  --text: #2a1b3d;
-  --text-soft: #78716c;
-  --accent: #0f766e;
-  --accent-ink: #ffffff;
+  --ink: #3c1642;
+  --muted: #6a5a72;
+  --meta: #867790;
+  --line: #e8e8e8;
+  --track: #f0f0f0;
+  --placeholder: #9a8f7f;
+  --faded: #9e95a3;
+
   --radius: 18px;
-  --radius-sm: 12px;
-  --shadow: 0 1px 2px rgb(0 0 0 / 4%), 0 8px 24px rgb(0 0 0 / 4%);
-  --nav-h: 68px;
+  --radius-sm: 14px;
+
+  /* Las tarjetas no llevan sombra difusa: una línea fina debajo. */
+  --card-line: 0 1px 0 var(--line);
+
+  --nav-h: 75px;
+  --page-max: 520px;
 }
 
 * {
@@ -24,10 +41,11 @@ body {
 
 body {
   background: var(--bg);
-  color: var(--text);
-  font-family: ui-rounded, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  color: var(--ink);
+  font-family: Outfit, ui-rounded, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    system-ui, sans-serif;
   font-size: 16px;
-  line-height: 1.45;
+  line-height: 1.4;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -38,10 +56,27 @@ h3 {
   line-height: 1.15;
 }
 
+/* .h-page del prototipo. */
+h1 {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0;
+}
+
 button {
   font: inherit;
   color: inherit;
   cursor: pointer;
+  border: 0;
+  background: none;
+}
+
+button:disabled {
+  cursor: not-allowed;
 }
 
 input {
@@ -49,19 +84,48 @@ input {
   color: inherit;
 }
 
-.page {
-  max-width: 560px;
-  margin: 0 auto;
-  padding: 24px 20px calc(var(--nav-h) + 92px);
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
+.page-sub {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.meta {
+  color: var(--meta);
+  font-size: 13px;
+}
+
+/* Tarjeta blanca: la unidad visual de toda la app. */
 .card {
   background: var(--surface);
-  border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  box-shadow: var(--card-line);
 }
 
-.muted {
-  color: var(--text-soft);
+/* Botones: nunca en mayúsculas y de peso medio, como en el prototipo. */
+.btn {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.btn-teal {
+  background: var(--teal);
+  color: #fff;
+}
+
+.btn-ink {
+  background: var(--plum);
+  color: var(--bg);
+}
+
+.btn:disabled {
+  opacity: 0.4;
 }

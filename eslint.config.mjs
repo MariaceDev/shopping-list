@@ -2,5 +2,9 @@
 import withNuxt from './.nuxt/eslint.config.mjs'
 
 export default withNuxt(
-  // Your custom configs here
+  {
+    // El prototipo de Claude Design vive aquí como referencia del diseño.
+    // Es código ajeno que no se compila: se lee, no se mantiene.
+    ignores: ['.claude/**'],
+  },
 )

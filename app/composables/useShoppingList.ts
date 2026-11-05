@@ -13,8 +13,8 @@ import {
 import {
   DEFAULT_LIST_ID,
   type HistoryAction,
-  type HistoryEntry,
   type ShoppingItem,
+  type ShoppingTrip,
 } from '#shared/types/shopping'
 
 function toItem(id: string, data: DocumentData): ShoppingItem {
@@ -30,15 +30,18 @@ function toItem(id: string, data: DocumentData): ShoppingItem {
   }
 }
 
-function toHistoryEntry(id: string, data: DocumentData): HistoryEntry {
+function toTrip(id: string, data: DocumentData): ShoppingTrip {
+  const raw: DocumentData[] = Array.isArray(data.items) ? data.items : []
+
   return {
     id,
-    action: (data.action ?? 'added') as HistoryAction,
-    itemName: String(data.itemName ?? ''),
-    qty: Number(data.qty ?? 0),
+    at: millis(data.at),
     byUid: String(data.byUid ?? ''),
     byName: String(data.byName ?? ''),
-    at: millis(data.at),
+    items: raw.map((item) => ({
+      name: String(item?.name ?? ''),
+      qty: Number(item?.qty ?? 1),
+    })),
   }
 }
 
@@ -62,9 +65,13 @@ function createList(listId: string) {
     )
   })
 
-  const pending = computed(() => items.value.filter((i) => !i.done))
-  const bought = computed(() => items.value.filter((i) => i.done))
+  /** Lo que ya está en el carro durante el modo tienda. */
+  const inCart = computed(() => items.value.filter((i) => i.done))
 
+  /**
+   * `history` es un registro interno de auditoría: se escribe siempre, pero
+   * no se enseña en ninguna pantalla. Lo que ve la gente es `trips`.
+   */
   async function record(action: HistoryAction, itemName: string, qty: number) {
     await addDoc(collection(db, 'lists', listId, 'history'), {
       action,
@@ -76,13 +83,13 @@ function createList(listId: string) {
     })
   }
 
-  /** Añadir un producto. Si ya está pendiente, suma unidades en vez de duplicar. */
+  /** Añadir un producto. Si ya está en la lista, suma unidades en vez de duplicar. */
   async function addItem(name: string, qty = 1) {
     const clean = name.trim()
     if (!clean) return
 
     const existing = items.value.find(
-      (i) => i.name.toLowerCase() === clean.toLowerCase() && !i.done,
+      (i) => i.name.toLowerCase() === clean.toLowerCase(),
     )
     if (existing) {
       await setQty(existing.id, existing.qty + qty)
@@ -115,7 +122,7 @@ function createList(listId: string) {
     await record('qty-changed', item.name, qty)
   }
 
-  /** Marcar o desmarcar como comprado. */
+  /** Meter o sacar del carro durante el modo tienda. */
   async function toggleDone(itemId: string) {
     const item = items.value.find((i) => i.id === itemId)
     if (!item) return
@@ -127,11 +134,30 @@ function createList(listId: string) {
     if (!item.done) await record('bought', item.name, item.qty)
   }
 
-  /** Al terminar la compra: lo comprado sale de la lista y queda en el historial. */
-  async function clearBought() {
-    const done = items.value.filter((i) => i.done)
-    for (const item of done) {
+  /**
+   * Cerrar la compra: lo que está en el carro se guarda como una compra
+   * terminada y desaparece de la lista. Lo que no se cogió se queda.
+   */
+  async function finishTrip() {
+    const taken = inCart.value
+    if (!taken.length) return
+
+    await addDoc(collection(db, 'lists', listId, 'trips'), {
+      at: serverTimestamp(),
+      byUid: user.uid,
+      byName: me.value?.name ?? '',
+      items: taken.map((i) => ({ name: i.name, qty: i.qty })),
+    })
+
+    for (const item of taken) {
       await deleteDoc(doc(itemsRef, item.id))
+    }
+  }
+
+  /** "Repetir esta compra": devuelve a la lista todo lo de una compra pasada. */
+  async function repeatTrip(trip: ShoppingTrip) {
+    for (const item of trip.items) {
+      await addItem(item.name, item.qty)
     }
   }
 
@@ -145,14 +171,14 @@ function createList(listId: string) {
 
   return {
     items,
-    pending,
-    bought,
+    inCart,
     loading,
     addItem,
     setQty,
     toggleDone,
     removeItem,
-    clearBought,
+    finishTrip,
+    repeatTrip,
   }
 }
 
@@ -168,38 +194,38 @@ export function useShoppingList(listId: string = DEFAULT_LIST_ID) {
   return api
 }
 
-function createHistory(listId: string, max: number) {
+function createTrips(listId: string, max: number) {
   const { db } = useFirebase()
 
-  const entries = ref<HistoryEntry[]>([])
+  const trips = ref<ShoppingTrip[]>([])
   const loading = ref(true)
 
   effectScope(true).run(() => {
     watchQuery(
       query(
-        collection(db, 'lists', listId, 'history'),
+        collection(db, 'lists', listId, 'trips'),
         orderBy('at', 'desc'),
         limit(max),
       ),
       (snapshot) => {
-        entries.value = snapshot.docs.map((d) => toHistoryEntry(d.id, d.data()))
+        trips.value = snapshot.docs.map((d) => toTrip(d.id, d.data()))
         loading.value = false
       },
-      'history',
+      'trips',
     )
   })
 
-  return { entries, loading }
+  return { trips, loading }
 }
 
-const historyCache = new Map<string, ReturnType<typeof createHistory>>()
+const tripsCache = new Map<string, ReturnType<typeof createTrips>>()
 
-/** El historial de la lista, lo más reciente primero. */
-export function useListHistory(listId: string = DEFAULT_LIST_ID, max = 100) {
-  let api = historyCache.get(listId)
+/** Las compras terminadas, de la más reciente a la más vieja. */
+export function useTrips(listId: string = DEFAULT_LIST_ID, max = 50) {
+  let api = tripsCache.get(listId)
   if (!api) {
-    api = createHistory(listId, max)
-    historyCache.set(listId, api)
+    api = createTrips(listId, max)
+    tripsCache.set(listId, api)
   }
   return api
 }

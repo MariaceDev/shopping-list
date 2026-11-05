@@ -1,70 +1,81 @@
 <script setup lang="ts">
-const emit = defineEmits<{ add: [name: string] }>()
+/**
+ * Pide la lista aquí, y no en el layout, a propósito: este componente solo se
+ * monta cuando ya eres miembro. Si el layout abriese la suscripción antes de
+ * que entres, Firestore respondería permission-denied y el listener se
+ * quedaría muerto aunque luego te unieras.
+ */
+const { addItem } = useShoppingList()
 
 const name = ref('')
 
-function submit() {
+async function submit() {
   const clean = name.value.trim()
   if (!clean) return
-  emit('add', clean)
   name.value = ''
+  await addItem(clean)
 }
 </script>
 
 <template>
-  <form class="bar" @submit.prevent="submit">
-    <input
-      v-model="name"
-      type="text"
-      placeholder="Añadir producto…"
-      maxlength="60"
-      enterkeyhint="done"
-    >
-    <button type="submit" aria-label="Añadir" :disabled="!name.trim()">+</button>
+  <form class="adder" @submit.prevent="submit">
+    <div class="inner">
+      <input
+        v-model="name"
+        type="text"
+        placeholder="Añadir producto…"
+        maxlength="60"
+        enterkeyhint="done"
+        aria-label="Nombre del producto"
+      >
+      <button type="submit" class="add-btn" aria-label="Añadir">+</button>
+    </div>
   </form>
 </template>
 
 <style scoped>
-.bar {
+.adder {
   position: fixed;
   left: 0;
   right: 0;
   bottom: var(--nav-h);
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+}
+
+.inner {
   display: flex;
-  gap: 10px;
-  align-items: center;
-  max-width: 560px;
+  gap: 8px;
+  max-width: var(--page-max);
   margin: 0 auto;
-  padding: 12px 20px;
-  background: linear-gradient(to top, var(--bg) 70%, transparent);
+  padding: 10px 16px;
 }
 
 input {
   flex: 1;
+  min-width: 0;
+  min-height: 48px;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 15px 20px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 0 16px;
+  font-size: 16px;
   outline: none;
 }
 
-input:focus {
-  border-color: var(--accent);
+input::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
 }
 
-button {
-  width: 54px;
-  height: 54px;
+.add-btn {
+  width: 48px;
+  height: 48px;
   flex: none;
-  border: 0;
-  border-radius: 18px;
-  background: #3b0764;
-  color: #fff;
-  font-size: 26px;
+  border-radius: var(--radius-sm);
+  background: var(--plum);
+  color: var(--bg);
+  font-size: 24px;
   line-height: 1;
-}
-
-button:disabled {
-  opacity: 0.4;
 }
 </style>

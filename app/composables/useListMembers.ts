@@ -8,6 +8,7 @@ import {
 } from 'firebase/firestore'
 import {
   DEFAULT_LIST_ID,
+  MEMBER_COLORS,
   colorForIndex,
   type ListMember,
 } from '#shared/types/shopping'
@@ -75,7 +76,21 @@ function createMembers(listId: string) {
     )
   }
 
-  return { members, me, loading, join }
+  async function updateProfile(name: string, color: string) {
+    const clean = name.trim()
+    if (!clean) throw new Error('El nombre no puede estar vacío')
+    if (!MEMBER_COLORS.some((memberColor) => memberColor === color)) {
+      throw new Error('Elige un color de la paleta')
+    }
+
+    await setDoc(
+      doc(db, 'lists', listId, 'members', user.uid),
+      { name: clean, color },
+      { merge: true },
+    )
+  }
+
+  return { members, me, loading, join, updateProfile }
 }
 
 export function useListMembers(listId: string = DEFAULT_LIST_ID) {

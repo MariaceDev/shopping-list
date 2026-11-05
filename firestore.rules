@@ -33,6 +33,13 @@ service cloud.firestore {
         allow read, create: if isMember(listId);
         allow update, delete: if false;
       }
+
+      // Compras terminadas: lo que enseña la pantalla de Historial.
+      // Como el historial, se crean y ya no se tocan.
+      match /trips/{tripId} {
+        allow read, create: if isMember(listId);
+        allow update, delete: if false;
+      }
     }
   }
 }

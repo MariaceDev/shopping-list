@@ -12,7 +12,8 @@ export function relativeTime(ms: number, now = Date.now()): string {
 
   const seconds = Math.round((ms - now) / 1000)
   const abs = Math.abs(seconds)
-  const formatter = new Intl.RelativeTimeFormat('es', { numeric: 'auto' })
+  // 'short' da "hace 3 min" en vez de "hace 3 minutos": cabe en la fila.
+  const formatter = new Intl.RelativeTimeFormat('es', { numeric: 'auto', style: 'short' })
 
   if (abs < 60) return formatter.format(Math.round(seconds), 'second')
   if (abs < 3600) return formatter.format(Math.round(seconds / 60), 'minute')
@@ -23,4 +24,16 @@ export function relativeTime(ms: number, now = Date.now()): string {
     day: 'numeric',
     month: 'short',
   })
+}
+
+/** "Sábado, 1 nov": la fecha de una compra, como la pinta el historial. */
+export function tripDate(ms: number): string {
+  if (!ms) return ''
+
+  const text = new Date(ms).toLocaleDateString('es-ES', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'short',
+  })
+  return text.charAt(0).toUpperCase() + text.slice(1)
 }

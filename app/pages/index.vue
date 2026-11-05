@@ -1,138 +1,121 @@
 <script setup lang="ts">
-const { members, me } = useListMembers()
-const { pending, bought, loading, addItem, setQty, toggleDone, clearBought }
-  = useShoppingList()
+const { members } = useListMembers()
+const { items, loading, setQty } = useShoppingList()
 
-const shopping = ref(false)
-
-/**
- * "Empezar a comprar" entra en modo compra: tocar un producto lo marca como
- * cogido. Al terminar, lo cogido sale de la lista y queda en el historial.
- */
-async function toggleShopping() {
-  if (shopping.value) await clearBought()
-  shopping.value = !shopping.value
-}
+/** El diseño cuenta lo que falta por coger, no el total de la lista. */
+const pending = computed(() => items.value.filter((i) => !i.done).length)
 
 const subtitle = computed(() => {
-  const n = pending.value.length
   if (loading.value) return 'Cargando…'
-  if (n === 0) return 'No falta nada'
-  return `Falta${n === 1 ? '' : 'n'} ${n} producto${n === 1 ? '' : 's'}`
+  if (pending.value === 0) return 'No falta nada'
+  return pending.value === 1 ? 'Falta 1 producto' : `Faltan ${pending.value} productos`
 })
 </script>
 
 <template>
   <div class="page">
-    <header>
-      <div>
-        <h1>Lista de casa</h1>
-        <p class="muted">{{ subtitle }}</p>
+    <header class="head">
+      <div class="title-row">
+        <div class="title">
+          <h1>Lista de casa</h1>
+          <p class="page-sub">{{ subtitle }}</p>
+        </div>
+        <div class="people">
+          <AppAvatar
+            v-for="member in members"
+            :key="member.uid"
+            :name="member.name"
+            :color="member.color"
+            :size="32"
+          />
+        </div>
       </div>
-      <div class="people">
-        <AppAvatar
-          v-for="member in members"
-          :key="member.uid"
-          :name="member.name"
-          :color="member.color"
-          :size="36"
-        />
-      </div>
+
+      <NuxtLink to="/comprar" class="btn btn-teal shop">Empezar a comprar</NuxtLink>
     </header>
 
-    <button class="shop" type="button" @click="toggleShopping">
-      {{ shopping ? `Terminar la compra (${bought.length})` : 'Empezar a comprar' }}
-    </button>
-
-    <ul class="items">
+    <ul class="scroll">
       <ItemRow
-        v-for="item in pending"
+        v-for="item in items"
         :key="item.id"
         :item="item"
         :members="members"
         @qty="setQty(item.id, $event)"
-        @toggle="toggleDone(item.id)"
       />
     </ul>
 
-    <template v-if="bought.length">
-      <h2 class="section">Ya en el carro</h2>
-      <ul class="items">
-        <ItemRow
-          v-for="item in bought"
-          :key="item.id"
-          :item="item"
-          :members="members"
-          @qty="setQty(item.id, $event)"
-          @toggle="toggleDone(item.id)"
-        />
-      </ul>
-    </template>
-
-    <p v-if="!loading && !pending.length && !bought.length" class="empty muted">
-      La lista está vacía, {{ me?.name }}. Añade lo primero abajo.
+    <p v-if="!loading && !items.length" class="empty">
+      No falta nada. Añade lo primero abajo.
     </p>
-
-    <AddItemBar @add="addItem" />
   </div>
 </template>
 
 <style scoped>
-header {
+.page {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding-bottom: calc(var(--nav-h) + 80px);
+}
+
+.head {
+  padding: 16px 24px 20px;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 16px;
-  margin-bottom: 20px;
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.title {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 h1 {
-  font-size: 34px;
-  letter-spacing: -0.01em;
-}
-
-header p {
-  margin: 4px 0 0;
+  white-space: nowrap;
 }
 
 .people {
   display: flex;
+  flex-shrink: 0;
+  padding-left: 8px;
+}
+
+/* Los avatares se solapan, cada uno con su aro del color del fondo. */
+.people > * {
+  border: 2px solid var(--bg);
 }
 
 .people > :not(:first-child) {
-  margin-left: -10px;
+  margin-left: -8px;
 }
 
 .shop {
-  width: 100%;
-  border: 0;
-  border-radius: var(--radius);
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-size: 19px;
-  font-weight: 600;
-  padding: 18px;
-  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 51px;
+  text-decoration: none;
 }
 
-.items {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 12px;
-}
-
-.section {
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-soft);
-  margin: 26px 0 12px;
+.scroll {
+  padding: 0 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .empty {
+  padding: 48px 16px;
   text-align: center;
-  padding: 48px 0;
+  color: var(--meta);
 }
 </style>
