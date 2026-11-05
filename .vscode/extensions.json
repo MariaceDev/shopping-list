@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "anthropic.claude-code",
+    "Vue.volar",
+    "dbaeumer.vscode-eslint"
+  ]
+}

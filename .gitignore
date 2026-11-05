@@ -26,6 +26,7 @@ ui-debug.log
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 .idea
 
 # Claude Code (worktrees y ajustes locales de cada máquina)
