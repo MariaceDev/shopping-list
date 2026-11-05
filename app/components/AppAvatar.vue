@@ -1,3 +1,19 @@
+<template>
+  <v-avatar
+    :color="color"
+    :size="size"
+    class="font-weight-semibold"
+    :style="{
+      color: inkFor(color),
+      fontSize: `${Math.max(9, Math.round(size * 0.42))}px`,
+      lineHeight: 1,
+    }"
+    :title="name"
+  >
+    {{ initial }}
+  </v-avatar>
+</template>
+
 <script setup lang="ts">
 import { initialOf, inkFor } from '#shared/types/shopping'
 
@@ -8,29 +24,3 @@ const props = withDefaults(
 
 const initial = computed(() => initialOf(props.name))
 </script>
-
-<template>
-  <span
-    class="avatar"
-    :style="{
-      background: color,
-      color: inkFor(color),
-      width: `${size}px`,
-      height: `${size}px`,
-      fontSize: `${Math.max(9, Math.round(size * 0.42))}px`,
-    }"
-    :title="name"
-  >{{ initial }}</span>
-</template>
-
-<style scoped>
-.avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  font-weight: 600;
-  line-height: 1;
-  flex: none;
-}
-</style>

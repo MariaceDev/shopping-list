@@ -1,11 +1,25 @@
 /*
- * Tokens tomados del prototipo de Claude Design (.claude/vue/ListaCompra.vue).
- * Los valores son los suyos: si algo no cuadra, manda el prototipo.
+ * Estilos de la app. Los valores son los del prototipo de Claude Design
+ * (.claude/vue/ListaCompra.vue): si algo no cuadra, manda el prototipo.
+ *
+ * La maquetación va con las utilidades de Vuetify en las plantillas (d-flex,
+ * ga-3, px-6…) y los colores con las de su tema (bg-primary, text-muted…).
+ * Aquí queda lo que Vuetify no trae: la tipografía del prototipo, los valores
+ * que se salen de su escala de 4 en 4 px y lo que hay que pisar de sus
+ * componentes.
+ *
+ * Vuetify mete todo su CSS en cascade layers y este fichero va sin layer, así
+ * que aquí siempre se gana sin !important. Por lo mismo, los resets de
+ * elementos van dentro de su layer de reset: si no, le ganarían a sus
+ * utilidades (un `p { margin: 0 }` sin layer anularía un `mt-2`).
  */
+
+/* --- Tokens --------------------------------------------------------------- */
+
+/* Los colores también están en el tema de Vuetify (plugins/vuetify.ts). */
 :root {
   --plum: #3c1642;
   --teal: #086375;
-  --turquoise: #1dd3b0;
   --lime: #affc41;
   --mint: #b2ff9e;
 
@@ -15,9 +29,7 @@
   --muted: #6a5a72;
   --meta: #867790;
   --line: #e8e8e8;
-  --track: #f0f0f0;
   --placeholder: #9a8f7f;
-  --faded: #9e95a3;
 
   --radius: 18px;
   --radius-sm: 14px;
@@ -27,68 +39,84 @@
 
   --nav-h: 75px;
   --page-max: 520px;
-}
 
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: Outfit, ui-rounded, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+  /* La tipografía que usa Vuetify en todos sus componentes. */
+  --v-font-body: Outfit, ui-rounded, -apple-system, BlinkMacSystemFont, 'Segoe UI',
     system-ui, sans-serif;
-  font-size: 16px;
+}
+
+/* --- Base ----------------------------------------------------------------- */
+
+@layer vuetify-core.reset {
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  h1,
+  h2,
+  h3 {
+    margin: 0;
+    line-height: 1.15;
+  }
+
+  /* .h-page del prototipo. */
+  h1 {
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  button {
+    border: 0;
+    background: none;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/*
+ * Vuetify pone en <html> un interlineado de 1.5 (el prototipo usa 1.4) y
+ * text-rendering: optimizeLegibility, que cambia el suavizado del texto.
+ */
+html {
   line-height: 1.4;
-  -webkit-font-smoothing: antialiased;
+  text-rendering: auto;
 }
 
-h1,
-h2,
-h3 {
-  margin: 0;
-  line-height: 1.15;
+/* Con backface-visibility: hidden, Chrome pinta la app en otra capa y el
+   suavizado del texto cambia un pelo. */
+.v-application__wrap {
+  backface-visibility: visible;
 }
 
-/* .h-page del prototipo. */
-h1 {
-  font-size: 30px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+/* --- Extensiones de las utilidades de Vuetify ------------------------------ */
+
+/* Radios propios para el prop `rounded` (rounded="btn", rounded="card"). */
+.rounded-btn {
+  border-radius: var(--radius-sm);
 }
 
-p {
-  margin: 0;
+.rounded-card {
+  border-radius: var(--radius);
 }
 
-button {
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-  border: 0;
-  background: none;
+/* Para que un hijo flex pueda encoger por debajo de su contenido. */
+.min-w-0 {
+  min-width: 0;
 }
 
-button:disabled {
-  cursor: not-allowed;
-}
-
-input {
-  font: inherit;
-  color: inherit;
-}
-
-ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
+/* --- Tipografía del prototipo --------------------------------------------- */
 
 .page-sub {
   color: var(--muted);
@@ -100,32 +128,370 @@ ul {
   font-size: 13px;
 }
 
+.body-text {
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+.note {
+  color: var(--meta);
+  font-size: 13px;
+  text-wrap: pretty;
+}
+
+/* --- Componentes de Vuetify ---------------------------------------------- */
+
+/* Botones: nunca en mayúsculas, de peso medio y sin el tracking de Material. */
+.v-btn {
+  font-size: 16px;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-indent: 0;
+}
+
+/* Deshabilitado es el mismo botón más transparente, no uno gris. */
+.v-btn--disabled {
+  opacity: 0.4;
+}
+
+.v-btn--disabled .v-btn__overlay {
+  opacity: 0;
+}
+
 /* Tarjeta blanca: la unidad visual de toda la app. */
-.card {
-  background: var(--surface);
-  border-radius: var(--radius);
+.v-card {
   box-shadow: var(--card-line);
 }
 
-/* Botones: nunca en mayúsculas y de peso medio, como en el prototipo. */
-.btn {
-  width: 100%;
-  border-radius: var(--radius-sm);
-  font-size: 16px;
-  font-weight: 500;
+/* Campos de texto: sin el tracking de Material y con el placeholder pleno. */
+.v-field,
+.v-field__input {
   letter-spacing: 0;
 }
 
-.btn-teal {
-  background: var(--teal);
-  color: #fff;
+.v-field__input {
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
-.btn-ink {
-  background: var(--plum);
-  color: var(--bg);
+.v-text-field input::placeholder,
+.v-text-field .v-field:not(.v-field--no-label, .v-field--active) input::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
 }
 
-.btn:disabled {
-  opacity: 0.4;
+/* --- Layout: arranque y navegación inferior ------------------------------- */
+
+.boot {
+  padding: 72px 24px;
+}
+
+.nav {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-inner {
+  max-width: var(--page-max);
+  padding: 8px 12px 10px;
+}
+
+.tab.v-btn {
+  min-width: 0;
+  padding: 4px 10px;
+  border-radius: 0;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.tab-pill {
+  width: 56px;
+  height: 30px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tab.v-btn--active .tab-pill {
+  background: var(--mint);
+}
+
+.tab.v-btn--active .tab-label {
+  font-weight: 600;
+}
+
+/* --- Puerta del nombre (NameGate) ----------------------------------------- */
+
+.join {
+  min-height: 100dvh;
+  max-width: var(--page-max);
+  padding: 40px 28px calc(24px + env(safe-area-inset-bottom));
+}
+
+.eyebrow {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.h-join {
+  font-size: 32px;
+  line-height: 1.1;
+}
+
+.name-field .v-field {
+  border: 2px solid var(--line);
+  border-radius: 16px;
+}
+
+.name-field .v-field--focused {
+  border-color: var(--teal);
+}
+
+.name-field .v-field__input {
+  min-height: 54px;
+  padding-inline: 18px;
+  font-size: 20px;
+}
+
+.join-preview {
+  padding: 4px 2px;
+}
+
+/* --- Barra de añadir producto (AddItemBar) -------------------------------- */
+
+.adder {
+  bottom: var(--nav-h);
+}
+
+.adder-inner {
+  max-width: var(--page-max);
+  padding-block: 10px;
+}
+
+.adder-field .v-field {
+  border-radius: var(--radius-sm);
+}
+
+.adder-btn.v-btn {
+  min-width: 0;
+  padding: 0;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+/* --- Fila de la lista (ItemRow) ------------------------------------------- */
+
+.item-row {
+  padding: 14px 14px 14px 18px;
+}
+
+.item-main {
+  gap: 5px;
+}
+
+.item-name {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.item-meta {
+  gap: 6px;
+}
+
+.stepper {
+  gap: 2px;
+  padding: 3px;
+}
+
+.step.v-btn {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.stepper-qty {
+  min-width: 22px;
+  font-size: 16px;
+}
+
+/* --- Páginas con navegación ----------------------------------------------- */
+
+.page {
+  max-width: var(--page-max);
+}
+
+.page-list {
+  padding-bottom: calc(var(--nav-h) + 80px);
+}
+
+.page-hist {
+  padding-bottom: calc(var(--nav-h) + 24px);
+}
+
+/* --- Modo tienda ---------------------------------------------------------- */
+
+.shop {
+  min-height: 100dvh;
+}
+
+.shop-head {
+  max-width: var(--page-max);
+  padding: calc(12px + env(safe-area-inset-top)) 24px 22px;
+  gap: 14px;
+}
+
+.shop-eyebrow {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+.shop-exit.v-btn {
+  min-width: 0;
+  padding: 0 14px;
+  background: rgb(255 255 255 / 16%);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.shop-count {
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.shop-sheet {
+  max-width: var(--page-max);
+  border-radius: 28px 28px 0 0;
+}
+
+.shop-row {
+  padding: 16px 18px;
+}
+
+.shop-check {
+  width: 30px;
+  height: 30px;
+  border: 2px solid #c7c3cc;
+  font-size: 16px;
+}
+
+.shop-check-on {
+  border: 0;
+}
+
+.shop-name {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.shop-qty {
+  font-size: 15px;
+}
+
+.shop-foot {
+  padding: 10px 0 calc(14px + env(safe-area-inset-bottom));
+}
+
+/* --- Historial ------------------------------------------------------------ */
+
+.hist-head {
+  padding: 16px 18px;
+  gap: 14px;
+}
+
+.hist-text {
+  gap: 3px;
+}
+
+.hist-date {
+  font-size: 16px;
+}
+
+.hist-toggle {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.hist-body {
+  padding: 0 18px 16px 70px;
+}
+
+.hist-line {
+  font-size: 15px;
+  color: #4e3557;
+}
+
+.hist-qty {
+  font-size: 15px;
+}
+
+.hist-repeat.v-btn {
+  font-size: 15px;
+}
+
+/* --- Tag NFC -------------------------------------------------------------- */
+
+.nfc {
+  min-height: calc(100dvh - var(--nav-h));
+  max-width: var(--page-max);
+}
+
+.nfc-ring {
+  width: 180px;
+  height: 180px;
+}
+
+.nfc-pulse {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--teal);
+  opacity: 0;
+  animation: nfc-pulse 2.1s ease-out infinite;
+}
+
+@keyframes nfc-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nfc-pulse {
+    animation: none;
+    opacity: 0.25;
+  }
+}
+
+.nfc-core {
+  width: 120px;
+  height: 120px;
+  font-size: 26px;
+  letter-spacing: 0.06em;
+}
+
+.nfc-copy {
+  gap: 10px;
+}
+
+.h-nfc {
+  font-size: 28px;
+  line-height: 1.15;
+  text-wrap: pretty;
+}
+
+.nfc-link.v-btn {
+  box-shadow: var(--card-line);
 }

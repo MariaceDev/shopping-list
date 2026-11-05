@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-11-05',
 
@@ -9,7 +11,25 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
 
-  modules: ['@nuxt/eslint'],
+  modules: [
+    '@nuxt/eslint',
+    // Vuetify con auto-import: solo entra en el bundle lo que se usa.
+    (_options, nuxt) => {
+      nuxt.hooks.hook('vite:extendConfig', (config) => {
+        config.plugins?.push(vuetify({ autoImport: true }))
+      })
+    },
+  ],
+
+  build: {
+    transpile: ['vuetify'],
+  },
+
+  vite: {
+    vue: {
+      template: { transformAssetUrls },
+    },
+  },
 
   css: ['~/assets/css/main.css'],
 

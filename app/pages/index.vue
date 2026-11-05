@@ -1,3 +1,46 @@
+<template>
+  <div class="page page-list mx-auto w-100">
+    <header class="d-flex flex-column ga-4 px-6 pt-4 pb-5">
+      <div class="d-flex justify-space-between align-start ga-3">
+        <div class="d-flex flex-column flex-1-1-0 ga-1 min-w-0">
+          <h1 class="text-no-wrap">Lista de casa</h1>
+          <p class="page-sub">{{ subtitle }}</p>
+        </div>
+        <!-- Los avatares se solapan, cada uno con su aro del color del fondo. -->
+        <div class="d-flex flex-shrink-0 ps-2">
+          <AppAvatar
+            v-for="(member, index) in members"
+            :key="member.uid"
+            :name="member.name"
+            :color="member.color"
+            :size="32"
+            class="border-md border-background border-opacity-100"
+            :class="{ 'ms-n2': index > 0 }"
+          />
+        </div>
+      </div>
+
+      <v-btn to="/comprar" color="primary" :height="51" class="btn w-100">
+        Empezar a comprar
+      </v-btn>
+    </header>
+
+    <ul class="d-flex flex-column ga-2 px-4 pb-3">
+      <ItemRow
+        v-for="item in items"
+        :key="item.id"
+        :item="item"
+        :members="members"
+        @qty="setQty(item.id, $event)"
+      />
+    </ul>
+
+    <p v-if="!loading && !items.length" class="py-12 px-4 text-center text-meta">
+      No falta nada. Añade lo primero abajo.
+    </p>
+  </div>
+</template>
+
 <script setup lang="ts">
 const { members } = useListMembers()
 const { items, loading, setQty } = useShoppingList()
@@ -11,111 +54,3 @@ const subtitle = computed(() => {
   return pending.value === 1 ? 'Falta 1 producto' : `Faltan ${pending.value} productos`
 })
 </script>
-
-<template>
-  <div class="page">
-    <header class="head">
-      <div class="title-row">
-        <div class="title">
-          <h1>Lista de casa</h1>
-          <p class="page-sub">{{ subtitle }}</p>
-        </div>
-        <div class="people">
-          <AppAvatar
-            v-for="member in members"
-            :key="member.uid"
-            :name="member.name"
-            :color="member.color"
-            :size="32"
-          />
-        </div>
-      </div>
-
-      <NuxtLink to="/comprar" class="btn btn-teal shop">Empezar a comprar</NuxtLink>
-    </header>
-
-    <ul class="scroll">
-      <ItemRow
-        v-for="item in items"
-        :key="item.id"
-        :item="item"
-        :members="members"
-        @qty="setQty(item.id, $event)"
-      />
-    </ul>
-
-    <p v-if="!loading && !items.length" class="empty">
-      No falta nada. Añade lo primero abajo.
-    </p>
-  </div>
-</template>
-
-<style scoped>
-.page {
-  max-width: var(--page-max);
-  margin: 0 auto;
-  padding-bottom: calc(var(--nav-h) + 80px);
-}
-
-.head {
-  padding: 16px 24px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.title {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-h1 {
-  white-space: nowrap;
-}
-
-.people {
-  display: flex;
-  flex-shrink: 0;
-  padding-left: 8px;
-}
-
-/* Los avatares se solapan, cada uno con su aro del color del fondo. */
-.people > * {
-  border: 2px solid var(--bg);
-}
-
-.people > :not(:first-child) {
-  margin-left: -8px;
-}
-
-.shop {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 51px;
-  text-decoration: none;
-}
-
-.scroll {
-  padding: 0 16px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.empty {
-  padding: 48px 16px;
-  text-align: center;
-  color: var(--meta);
-}
-</style>

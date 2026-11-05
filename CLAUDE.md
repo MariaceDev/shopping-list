@@ -40,9 +40,9 @@ app/                  # srcDir de Nuxt 4
   pages/              # index (lista), comprar (modo tienda), historial, nfc
   components/         # AppAvatar, ItemRow, AddItemBar, NameGate
   composables/        # useFirebase, useListMembers, useShoppingList
-  plugins/            # firebase.client.ts — arranca Firebase y la sesión
+  plugins/            # firebase.client.ts (Firebase y sesión), vuetify.ts (tema)
   utils/              # helpers auto-importados (time.ts)
-  assets/css/main.css # tokens de color, tipografía y estilos base
+  assets/css/main.css # todo el CSS: tokens, tipografía y ajustes a Vuetify
 shared/types/         # tipos del dominio, compartidos (el "common" en pequeño)
 test/                 # tests de Vitest
 firestore.rules       # reglas de seguridad
@@ -59,9 +59,40 @@ De ahí salen la tipografía (**Outfit**, pesos 500 y 600 — nada de 700/800),
 los tamaños, y el detalle de que las tarjetas **no llevan sombra difusa** sino
 una línea fina debajo (`0 1px 0 #e8e8e8`).
 
-Nada de librerías de componentes: CSS propio en `app/assets/css/main.css`
-(tokens) y `<style scoped>` en cada componente. Se intentó con Vuetify y se
-quitó: imponía su propia escala tipográfica y no dejaba clavar el diseño.
+### Vuetify
+
+La interfaz va con **Vuetify 4** (`app/plugins/vuetify.ts`), pero ajustado
+para que se vea exactamente como el prototipo, no como Material:
+
+- **Tema `casa`** con los colores del prototipo: `primary` (teal),
+  `secondary` (amatista), `mint`, `accent` (lima), `track`, `muted`, `meta`,
+  `faded`. De ahí salen las clases `bg-*` y `text-*`. Las capas de hover y
+  pulsación están a 0 y el ripple apagado, porque el diseño no los tiene.
+- **Maquetación con las utilidades de Vuetify** en la plantilla (`d-flex`,
+  `ga-3`, `px-6`, `text-truncate`…). Su escala va de 4 en 4 px; lo que se sale
+  de ella (14, 18, 10 px…) va en `main.css`.
+- **Los componentes no llevan `<style>`.** Todo el CSS está en
+  `app/assets/css/main.css`, por secciones: tipografía del prototipo, ajustes
+  de los componentes de Vuetify y una sección por pantalla.
+- Vuetify mete su CSS en *cascade layers*, así que lo de `main.css` (sin layer)
+  le gana siempre, sin `!important`. Los resets de elementos (`p`, `h1`…) van
+  dentro de `@layer vuetify-core.reset`: sin layer anularían utilidades como
+  `mt-2`.
+- Radios propios para el prop `rounded`: `rounded="btn"` (14 px, el de los
+  botones por defecto) y `rounded="card"` (18 px, el de las tarjetas por
+  defecto).
+- Las clases de tipografía de Vuetify (`text-h4`, `text-headline-*`…) **no se
+  usan**: no coinciden con la escala del prototipo. Tamaños y pesos van en
+  `main.css`.
+
+Trampas que ya se han pisado al migrar, por si cambias algo:
+
+- `v-btn` pone peso 500 y `line-height: normal`. Los botones de icono (`−`,
+  `+`) van a 400 y todos heredan el 1.4 del cuerpo.
+- No uses el prop `block` de `v-btn` dentro de un contenedor `flex-column`:
+  mete `flex-grow: 1` y el botón crece en alto. Usa `class="w-100"`.
+- Dentro de `v-app` las páginas son hijas de un flex en columna: con
+  `mx-auto` necesitan `w-100` o encogen al ancho de su contenido.
 
 ## Firebase
 
@@ -104,6 +135,9 @@ Ni `trips` ni `history` se editan ni se borran nunca: las reglas lo impiden.
   de dominio. En inglés solo lo que impone el framework.
 - **TypeScript estricto.** Nada de `as any`; si un tipo no cuadra, arregla el
   tipo, no lo silencies.
+- **Orden de los bloques en los `.vue`: `<template>`, luego `<script>`, luego
+  `<style>`.** Lo impone la regla `vue/block-order` de ESLint (`pnpm lint --fix`
+  lo corrige solo).
 - Los tipos del dominio van en `shared/types/`, no duplicados en componentes.
 - **Una sola suscripción por colección.** Los composables de Firestore cachean
   su `onSnapshot` a nivel de módulo (`effectScope(true)`), para que layout y

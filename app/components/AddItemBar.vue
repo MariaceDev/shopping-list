@@ -1,3 +1,22 @@
+<template>
+  <form class="adder position-fixed left-0 right-0 bg-background border-t" @submit.prevent="submit">
+    <div class="adder-inner d-flex ga-2 mx-auto px-4">
+      <v-text-field
+        v-model="name"
+        class="adder-field"
+        density="comfortable"
+        placeholder="Añadir producto…"
+        maxlength="60"
+        enterkeyhint="done"
+        aria-label="Nombre del producto"
+      />
+      <v-btn type="submit" color="secondary" :width="48" :height="48" class="adder-btn" aria-label="Añadir">
+        +
+      </v-btn>
+    </div>
+  </form>
+</template>
+
 <script setup lang="ts">
 /**
  * Pide la lista aquí, y no en el layout, a propósito: este componente solo se
@@ -16,66 +35,3 @@ async function submit() {
   await addItem(clean)
 }
 </script>
-
-<template>
-  <form class="adder" @submit.prevent="submit">
-    <div class="inner">
-      <input
-        v-model="name"
-        type="text"
-        placeholder="Añadir producto…"
-        maxlength="60"
-        enterkeyhint="done"
-        aria-label="Nombre del producto"
-      >
-      <button type="submit" class="add-btn" aria-label="Añadir">+</button>
-    </div>
-  </form>
-</template>
-
-<style scoped>
-.adder {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: var(--nav-h);
-  background: var(--bg);
-  border-top: 1px solid var(--line);
-}
-
-.inner {
-  display: flex;
-  gap: 8px;
-  max-width: var(--page-max);
-  margin: 0 auto;
-  padding: 10px 16px;
-}
-
-input {
-  flex: 1;
-  min-width: 0;
-  min-height: 48px;
-  background: var(--surface);
-  border: 0;
-  border-radius: var(--radius-sm);
-  padding: 0 16px;
-  font-size: 16px;
-  outline: none;
-}
-
-input::placeholder {
-  color: var(--placeholder);
-  opacity: 1;
-}
-
-.add-btn {
-  width: 48px;
-  height: 48px;
-  flex: none;
-  border-radius: var(--radius-sm);
-  background: var(--plum);
-  color: var(--bg);
-  font-size: 24px;
-  line-height: 1;
-}
-</style>

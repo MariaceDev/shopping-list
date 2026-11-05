@@ -1,3 +1,70 @@
+<template>
+  <div class="shop d-flex flex-column bg-primary">
+    <header class="shop-head d-flex flex-column mx-auto w-100">
+      <div class="d-flex justify-space-between align-center ga-3">
+        <p class="shop-eyebrow">Modo tienda</p>
+        <v-btn to="/" variant="text" rounded="pill" :height="34" class="shop-exit">Salir</v-btn>
+      </div>
+
+      <p class="shop-count">{{ taken }} de {{ items.length }} en el carro</p>
+
+      <v-progress-linear
+        :model-value="progress"
+        color="accent"
+        bg-color="white"
+        :bg-opacity="0.2"
+        :height="6"
+        rounded
+        rounded-bar
+      />
+    </header>
+
+    <div class="shop-sheet d-flex flex-column flex-1-1-0 bg-background mx-auto w-100 pt-4 px-4 pb-3">
+      <ul class="d-flex flex-column ga-2">
+        <li v-for="item in ordered" :key="item.id">
+          <v-card
+            tag="button"
+            type="button"
+            class="shop-row d-flex align-center ga-4 w-100 text-left"
+            :aria-pressed="item.done"
+            @click="toggleDone(item.id)"
+          >
+            <span
+              class="shop-check d-flex align-center justify-center flex-shrink-0 rounded-circle"
+              :class="{ 'shop-check-on bg-primary': item.done }"
+              aria-hidden="true"
+            >
+              {{ item.done ? '✓' : '' }}
+            </span>
+            <span
+              class="shop-name flex-1-1-0 min-w-0"
+              :class="{ 'text-faded text-decoration-line-through': item.done }"
+            >{{ item.name }}</span>
+            <span
+              class="shop-qty flex-shrink-0"
+              :class="item.done ? 'text-faded' : 'text-muted font-weight-semibold'"
+            >×{{ item.qty }}</span>
+          </v-card>
+        </li>
+      </ul>
+
+      <p v-if="!items.length" class="py-12 px-4 text-center text-meta">No hay nada que comprar.</p>
+
+      <div class="shop-foot mt-auto">
+        <v-btn
+          color="secondary"
+          :height="53"
+          class="w-100"
+          :disabled="!taken || closing"
+          @click="finish"
+        >
+          {{ taken ? `Terminar compra (${taken})` : 'Marca lo que ya tienes' }}
+        </v-btn>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 const { items, inCart, toggleDone, finishTrip } = useShoppingList()
 
@@ -25,205 +92,3 @@ async function finish() {
   }
 }
 </script>
-
-<template>
-  <div class="shop">
-    <header class="shop-head">
-      <div class="top">
-        <p class="shop-eyebrow">Modo tienda</p>
-        <NuxtLink to="/" class="exit">Salir</NuxtLink>
-      </div>
-
-      <p class="count">{{ taken }} de {{ items.length }} en el carro</p>
-
-      <div class="bar">
-        <span :style="{ width: `${progress}%` }" />
-      </div>
-    </header>
-
-    <div class="shop-sheet">
-      <ul class="rows">
-        <li v-for="item in ordered" :key="item.id">
-          <button
-            type="button"
-            class="row shop-row card"
-            :aria-pressed="item.done"
-            @click="toggleDone(item.id)"
-          >
-            <span class="check" :class="{ on: item.done }" aria-hidden="true">
-              {{ item.done ? '✓' : '' }}
-            </span>
-            <span class="shop-name" :class="{ done: item.done }">{{ item.name }}</span>
-            <span class="qty" :class="item.done ? 'done' : 'meta-qty'">×{{ item.qty }}</span>
-          </button>
-        </li>
-      </ul>
-
-      <p v-if="!items.length" class="empty">No hay nada que comprar.</p>
-
-      <div class="shop-foot">
-        <button type="button" class="btn btn-ink finish" :disabled="!taken || closing" @click="finish">
-          {{ taken ? `Terminar compra (${taken})` : 'Marca lo que ya tienes' }}
-        </button>
-      </div>
-    </div>
-  </div>
-</template>
-
-<style scoped>
-.shop {
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  background: var(--teal);
-  color: #fff;
-}
-
-.shop-head {
-  width: 100%;
-  max-width: var(--page-max);
-  margin: 0 auto;
-  padding: calc(12px + env(safe-area-inset-top)) 24px 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.shop-eyebrow {
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.85;
-  white-space: nowrap;
-}
-
-.exit {
-  background: rgb(255 255 255 / 16%);
-  color: #fff;
-  text-decoration: none;
-  border-radius: 999px;
-  height: 34px;
-  padding: 0 14px;
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-}
-
-.count {
-  font-size: 34px;
-  font-weight: 600;
-  line-height: 1.15;
-}
-
-.bar {
-  height: 6px;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 20%);
-  overflow: hidden;
-}
-
-.bar span {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: var(--lime);
-  transition: width 0.2s ease;
-}
-
-.shop-sheet {
-  flex: 1;
-  width: 100%;
-  max-width: var(--page-max);
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg);
-  color: var(--ink);
-  border-radius: 28px 28px 0 0;
-  padding: 16px 16px 12px;
-}
-
-.rows {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.row {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  text-align: left;
-}
-
-.shop-row {
-  padding: 16px 18px;
-  gap: 16px;
-}
-
-.check {
-  width: 30px;
-  height: 30px;
-  flex: none;
-  border-radius: 50%;
-  border: 2px solid #c7c3cc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-}
-
-.check.on {
-  background: var(--teal);
-  border: 0;
-  color: #fff;
-}
-
-.shop-name {
-  flex: 1;
-  min-width: 0;
-  font-size: 18px;
-  font-weight: 500;
-}
-
-.qty {
-  flex: none;
-  font-size: 15px;
-}
-
-.meta-qty {
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.done {
-  color: var(--faded);
-}
-
-.shop-name.done {
-  text-decoration: line-through;
-}
-
-.empty {
-  padding: 48px 16px;
-  text-align: center;
-  color: var(--meta);
-}
-
-.shop-foot {
-  margin-top: auto;
-  padding: 10px 0 calc(14px + env(safe-area-inset-bottom));
-}
-
-.finish {
-  height: 53px;
-}
-</style>

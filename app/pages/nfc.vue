@@ -1,3 +1,50 @@
+<template>
+  <div class="nfc d-flex flex-column align-center justify-center ga-10 pa-8 mx-auto w-100 text-center">
+    <div class="nfc-ring position-relative d-flex align-center justify-center flex-shrink-0">
+      <span
+        v-for="delay in [0, 0.7, 1.4]"
+        :key="delay"
+        class="nfc-pulse rounded-circle"
+        :style="{ animationDelay: `${delay}s` }"
+      />
+      <span class="nfc-core d-flex align-center justify-center position-relative rounded-circle bg-primary text-background font-weight-bold">
+        NFC
+      </span>
+    </div>
+
+    <div class="nfc-copy d-flex flex-column">
+      <h1 class="h-nfc">Pega un tag NFC en la nevera</h1>
+      <p class="body-text">
+        Quien lo acerque al móvil abrirá la lista de casa, con lo que haya
+        añadido cualquiera de la familia.
+      </p>
+    </div>
+
+    <div class="d-flex flex-column ga-3 w-100">
+      <v-btn
+        v-if="supported"
+        color="secondary"
+        rounded="pill"
+        :height="54"
+        class="w-100 px-7"
+        :disabled="writing"
+        @click="writeTag"
+      >
+        Grabar el tag
+      </v-btn>
+      <v-btn rounded="pill" :height="54" class="nfc-link w-100 px-7" @click="copyLink">
+        Copiar enlace
+      </v-btn>
+
+      <p v-if="!supported" class="note">
+        Para grabar el tag desde aquí hace falta Chrome en Android. En otros
+        dispositivos, copia el enlace y grábalo con una app de NFC.
+      </p>
+      <p v-if="status" class="note">{{ status }}</p>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 const url = ref('')
 const status = ref('')
@@ -33,152 +80,3 @@ async function copyLink() {
   status.value = 'Enlace copiado'
 }
 </script>
-
-<template>
-  <div class="nfc">
-    <div class="nfc-ring">
-      <span v-for="delay in [0, 0.7, 1.4]" :key="delay" class="pulse" :style="{ animationDelay: `${delay}s` }" />
-      <span class="nfc-core">NFC</span>
-    </div>
-
-    <div class="copy">
-      <h1 class="h-nfc">Pega un tag NFC en la nevera</h1>
-      <p class="body">
-        Quien lo acerque al móvil abrirá la lista de casa, con lo que haya
-        añadido cualquiera de la familia.
-      </p>
-    </div>
-
-    <div class="actions">
-      <button
-        v-if="supported"
-        type="button"
-        class="btn btn-ink tag-btn"
-        :disabled="writing"
-        @click="writeTag"
-      >
-        Grabar el tag
-      </button>
-      <button type="button" class="btn link-btn" @click="copyLink">Copiar enlace</button>
-
-      <p v-if="!supported" class="note">
-        Para grabar el tag desde aquí hace falta Chrome en Android. En otros
-        dispositivos, copia el enlace y grábalo con una app de NFC.
-      </p>
-      <p v-if="status" class="note">{{ status }}</p>
-    </div>
-  </div>
-</template>
-
-<style scoped>
-.nfc {
-  min-height: calc(100dvh - var(--nav-h));
-  max-width: var(--page-max);
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 32px;
-  gap: 40px;
-  text-align: center;
-}
-
-.nfc-ring {
-  position: relative;
-  width: 180px;
-  height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-}
-
-.pulse {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 2px solid var(--teal);
-  opacity: 0;
-  animation: pulse 2.1s ease-out infinite;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(0.6);
-    opacity: 0.9;
-  }
-
-  100% {
-    transform: scale(1.6);
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pulse {
-    animation: none;
-    opacity: 0.25;
-  }
-}
-
-.nfc-core {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: var(--teal);
-  color: var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 26px;
-  letter-spacing: 0.06em;
-  position: relative;
-}
-
-.copy {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.h-nfc {
-  font-size: 28px;
-  font-weight: 600;
-  line-height: 1.15;
-  text-wrap: pretty;
-}
-
-.body {
-  font-size: 16px;
-  line-height: 1.45;
-  color: var(--muted);
-  text-wrap: pretty;
-}
-
-.actions {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.tag-btn,
-.link-btn {
-  height: 54px;
-  border-radius: 999px;
-  padding: 0 28px;
-}
-
-.link-btn {
-  background: var(--surface);
-  box-shadow: var(--card-line);
-}
-
-.note {
-  color: var(--meta);
-  font-size: 13px;
-  text-wrap: pretty;
-}
-</style>
