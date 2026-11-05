@@ -1,0 +1,38 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isMember(listId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/lists/$(listId)/members/$(request.auth.uid));
+    }
+
+    match /lists/{listId} {
+      // Cualquiera con sesión (anónima incluida) puede leer la lista y
+      // unirse a ella: así funciona entrar por el tag NFC.
+      allow get, create: if signedIn();
+      allow update: if isMember(listId);
+      allow delete: if false;
+
+      match /members/{uid} {
+        allow read: if signedIn();
+        // Cada quien solo escribe su propia ficha de miembro.
+        allow write: if signedIn() && request.auth.uid == uid;
+      }
+
+      match /items/{itemId} {
+        allow read, create, update, delete: if isMember(listId);
+      }
+
+      match /history/{entryId} {
+        allow read, create: if isMember(listId);
+        allow update, delete: if false;
+      }
+    }
+  }
+}

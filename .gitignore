@@ -1,0 +1,33 @@
+# Nuxt
+.nuxt
+.output
+.data
+.nitro
+.cache
+dist
+
+# Dependencias
+node_modules
+.pnpm-store
+
+# Entorno
+.env
+.env.*
+!.env.example
+
+# Firebase
+.firebase
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+*-debug.log
+
+# Editor / SO
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# Claude Code (worktrees y ajustes locales de cada máquina)
+.claude/worktrees
+.claude/settings.local.json
