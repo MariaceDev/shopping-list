@@ -35,10 +35,17 @@ service cloud.firestore {
       }
 
       // Compras terminadas: lo que enseña la pantalla de Historial.
-      // Como el historial, se crean y ya no se tocan.
+      // No se borran nunca; lo único que se puede cambiar es lo que costó
+      // (`total`), que se apunta desde el Historial: un número de euros o null.
       match /trips/{tripId} {
         allow read, create: if isMember(listId);
-        allow update, delete: if false;
+        allow update: if isMember(listId)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['total'])
+          && (request.resource.data.total == null
+            || (request.resource.data.total is number
+              && request.resource.data.total > 0
+              && request.resource.data.total <= 100000));
+        allow delete: if false;
       }
     }
   }

@@ -10,12 +10,15 @@ export function millis(value: unknown): number {
 export function relativeTime(ms: number, now = Date.now()): string {
   if (!ms) return ''
 
-  const seconds = Math.round((ms - now) / 1000)
+  // Lo de los últimos segundos es «ahora», y nunca «dentro de…»: el reloj de
+  // la app (useNow) avanza cada 30 s y puede ir un poco por detrás de un
+  // producto recién añadido.
+  const seconds = Math.min(0, Math.round((ms - now) / 1000))
   const abs = Math.abs(seconds)
   // 'short' da "hace 3 min" en vez de "hace 3 minutos": cabe en la fila.
   const formatter = new Intl.RelativeTimeFormat('es', { numeric: 'auto', style: 'short' })
 
-  if (abs < 60) return formatter.format(Math.round(seconds), 'second')
+  if (abs < 60) return 'ahora'
   if (abs < 3600) return formatter.format(Math.round(seconds / 60), 'minute')
   if (abs < 86_400) return formatter.format(Math.round(seconds / 3600), 'hour')
   if (abs < 2_592_000) return formatter.format(Math.round(seconds / 86_400), 'day')

@@ -15,7 +15,7 @@
     <div class="nfc-copy d-flex flex-column">
       <h1 class="h-nfc">Pega un tag NFC en la nevera</h1>
       <p class="body-text">
-        Quien lo acerque al móvil abrirá la lista de casa, con lo que haya
+        Quien lo acerque al móvil abrirá esta lista, con lo que haya
         añadido cualquiera de la familia.
       </p>
     </div>
@@ -46,12 +46,15 @@
 </template>
 
 <script setup lang="ts">
+import { listLink } from '#shared/utils/list'
+
+const listId = useListId()
 const url = ref('')
 const status = ref('')
 const writing = ref(false)
 
 onMounted(() => {
-  url.value = window.location.origin
+  url.value = listLink(window.location.origin, listId)
 })
 
 /** Web NFC solo existe en Chrome para Android. */

@@ -6,7 +6,7 @@
         <v-btn to="/" variant="text" rounded="pill" :height="34" class="shop-exit">Salir</v-btn>
       </div>
 
-      <p class="shop-count">{{ taken }} de {{ items.length }} en el carro</p>
+      <p class="shop-count">{{ taken }} de {{ items.length }} en el carrito</p>
 
       <v-progress-linear
         :model-value="progress"
@@ -34,7 +34,7 @@
               :class="{ 'shop-check-on bg-primary': item.done }"
               aria-hidden="true"
             >
-              {{ item.done ? '✓' : '' }}
+              <v-icon v-if="item.done" icon="mdi-check" :size="18" />
             </span>
             <span
               class="shop-name flex-1-1-0 min-w-0"
@@ -66,13 +66,14 @@
 </template>
 
 <script setup lang="ts">
-const { items, inCart, toggleDone, finishTrip } = useShoppingList()
+import type { ShoppingItem } from '#shared/types/ShoppingItem.type'
+
+const listStore = useShoppingListStore()
+const { items, inCart, pending } = storeToRefs(listStore)
+const { toggleDone, finishTrip } = listStore
 
 /** Como en el prototipo: lo que falta primero, lo ya cogido al final. */
-const ordered = computed(() => [
-  ...items.value.filter((i) => !i.done),
-  ...items.value.filter((i) => i.done),
-])
+const ordered = computed<ShoppingItem[]>(() => [...pending.value, ...inCart.value])
 
 const taken = computed(() => inCart.value.length)
 const progress = computed(() =>

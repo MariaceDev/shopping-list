@@ -1,3 +1,4 @@
+import '@mdi/font/css/materialdesignicons.css'
 import { createVuetify } from 'vuetify'
 import 'vuetify/styles'
 
@@ -8,6 +9,9 @@ import 'vuetify/styles'
  * configurar desde aquí (radios, tamaños de letra, la línea fina de las
  * tarjetas…) se pisa en `main.css`: Vuetify mete todo su CSS en cascade
  * layers, así que cualquier regla sin layer le gana.
+ *
+ * Los iconos son de Material Design Icons (@mdi/font) y se escriben por su
+ * nombre: `icon="mdi-close"` en v-btn, o `<v-icon icon="mdi-close" />`.
  */
 export default defineNuxtPlugin((nuxtApp) => {
   const vuetify = createVuetify({

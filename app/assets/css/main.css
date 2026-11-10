@@ -28,6 +28,7 @@
   --ink: #3c1642;
   --muted: #6a5a72;
   --meta: #867790;
+  --faded: #9e95a3;
   --line: #e8e8e8;
   --placeholder: #9a8f7f;
 
@@ -40,9 +41,19 @@
   --nav-h: 75px;
   --page-max: 520px;
 
-  /* La tipografía que usa Vuetify en todos sus componentes. */
-  --v-font-body: Outfit, ui-rounded, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+  /* Toda la app va en Caveat, manuscrita, a juego con los iconos dibujados.
+     Su letra es más pequeña que la de una sans normal, así que los tamaños
+     de este fichero están subidos (~1,25×) respecto al prototipo. */
+  --font-hand: Caveat, 'Bradley Hand', 'Segoe Print', cursive;
+
+  /* Los textos secundarios (quién, cuándo, cuántos) van en Nunito: redonda,
+     pega con la manuscrita y se lee bien en pequeño. Tamaños normales, sin
+     el ×1,25 de Caveat. */
+  --font-sans: Nunito, ui-rounded, -apple-system, BlinkMacSystemFont, 'Segoe UI',
     system-ui, sans-serif;
+
+  /* La tipografía que usa Vuetify en todos sus componentes. */
+  --v-font-body: var(--font-hand);
 }
 
 /* --- Base ----------------------------------------------------------------- */
@@ -51,7 +62,8 @@
   body {
     background: var(--bg);
     color: var(--ink);
-    font-size: 16px;
+    font-size: 20px;
+    font-weight: 500;
     line-height: 1.4;
   }
 
@@ -64,9 +76,9 @@
 
   /* .h-page del prototipo. */
   h1 {
-    font-size: 30px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    font-family: var(--font-hand);
+    font-size: 46px;
+    font-weight: 700;
   }
 
   p {
@@ -111,6 +123,15 @@ html {
   border-radius: var(--radius);
 }
 
+/* La inicial de los avatares y del selector de color. Caveat deja mucho
+   aire arriba y abajo de la letra: se recorta la línea a su altura para que
+   el centrado del círculo centre la letra de verdad. */
+.initial {
+  display: block;
+  line-height: 1;
+  text-box: trim-both cap alphabetic;
+}
+
 /* Para que un hijo flex pueda encoger por debajo de su contenido. */
 .min-w-0 {
   min-width: 0;
@@ -120,16 +141,20 @@ html {
 
 .page-sub {
   color: var(--muted);
-  font-size: 14px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .meta {
   color: var(--meta);
+  font-family: var(--font-sans);
   font-size: 13px;
+  font-weight: 500;
 }
 
 .body-text {
-  font-size: 16px;
+  font-size: 20px;
   line-height: 1.45;
   color: var(--muted);
   text-wrap: pretty;
@@ -137,7 +162,7 @@ html {
 
 .note {
   color: var(--meta);
-  font-size: 13px;
+  font-size: 16px;
   text-wrap: pretty;
 }
 
@@ -145,7 +170,7 @@ html {
 
 /* Botones: nunca en mayúsculas, de peso medio y sin el tracking de Material. */
 .v-btn {
-  font-size: 16px;
+  font-size: 20px;
   line-height: 1.4;
   letter-spacing: 0;
   text-indent: 0;
@@ -174,6 +199,7 @@ html {
 .v-field__input {
   padding-top: 0;
   padding-bottom: 0;
+  font-size: 20px;
 }
 
 .v-text-field input::placeholder,
@@ -198,26 +224,36 @@ html {
 }
 
 .tab.v-btn {
-  min-width: 0;
-  padding: 4px 10px;
   border-radius: 0;
-  font-size: 12px;
-  font-weight: 400;
+  color: var(--faded);
 }
 
-.tab-pill {
-  width: 56px;
-  height: 30px;
-  font-size: 12px;
-  font-weight: 600;
+/* Los iconos de la barra son dibujos a mano (public/icons/*.png) usados
+   como máscara: se pintan con el color de texto de la pestaña. */
+.tab-icon {
+  width: 32px;
+  height: 32px;
+  background-color: currentColor;
+  -webkit-mask: var(--tab-icon) center / contain no-repeat;
+  mask: var(--tab-icon) center / contain no-repeat;
 }
 
-.tab.v-btn--active .tab-pill {
-  background: var(--mint);
+.tab.v-btn--active {
+  color: var(--teal);
 }
 
-.tab.v-btn--active .tab-label {
-  font-weight: 600;
+/* La pestaña activa: icono en teal y una rayita debajo, para que se vea
+   de un vistazo y no solo por el color. */
+.tab.v-btn--active::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  width: 24px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--teal);
+  transform: translateX(-50%);
 }
 
 /* --- Puerta del nombre (NameGate) ----------------------------------------- */
@@ -228,7 +264,10 @@ html {
   padding: 40px 28px calc(24px + env(safe-area-inset-bottom));
 }
 
+/* Las etiquetas en mayúsculas van en Nunito, como los textos secundarios:
+   en manuscrita, las versalitas se leen mal. */
 .eyebrow {
+  font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -236,8 +275,10 @@ html {
 }
 
 .h-join {
-  font-size: 32px;
+  font-family: var(--font-hand);
+  font-size: 40px;
   line-height: 1.1;
+  font-weight: 600;
 }
 
 .name-field .v-field {
@@ -252,11 +293,67 @@ html {
 .name-field .v-field__input {
   min-height: 54px;
   padding-inline: 18px;
-  font-size: 20px;
+  font-size: 25px;
 }
 
 .join-preview {
   padding: 4px 2px;
+}
+
+/* --- Lista nueva (pages/nueva.vue) --------------------------------------- */
+
+/* El enlace, en una tarjeta para que se vea que es algo que copiar. */
+.list-link {
+  padding: 14px 16px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--card-line);
+}
+
+/* --- Hoja de perfil (ProfileSheet) ---------------------------------------- */
+
+/* La hoja del prototipo: blanca y con las esquinas de arriba a 28 px. */
+.sheet {
+  background: var(--surface);
+  border-radius: 28px 28px 0 0;
+  padding: 28px 24px calc(32px + env(safe-area-inset-bottom));
+}
+
+.h-sheet {
+  font-family: var(--font-hand);
+  font-size: 30px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.swatch {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  cursor: pointer;
+}
+
+/* ColorPicker (en NameGate y en la hoja de perfil). El elegido lleva un aro
+   teal separado por un hueco del color del fondo. */
+.swatch-on {
+  box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--teal);
+}
+
+.swatch-initial {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Hueco de cada avatar en la cabecera; el tuyo es un botón. */
+.avatar-slot {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+button.avatar-slot {
+  cursor: pointer;
 }
 
 /* --- Barra de añadir producto (AddItemBar) -------------------------------- */
@@ -270,16 +367,23 @@ html {
   padding-block: 10px;
 }
 
+/* Blanco sobre el fondo casi blanco: el borde lo despega, como el del nombre. */
 .adder-field .v-field {
+  border: 2px solid var(--line);
   border-radius: var(--radius-sm);
 }
 
-.adder-btn.v-btn {
-  min-width: 0;
-  padding: 0;
+.adder-field .v-field--focused {
+  border-color: var(--teal);
+}
+
+/* 44 + los 2 px de borde arriba y abajo = 48, lo mismo que el botón «+». */
+.adder-field .v-field__input {
+  min-height: 44px;
+}
+
+.adder-btn .v-icon {
   font-size: 24px;
-  font-weight: 400;
-  line-height: 1;
 }
 
 /* --- Fila de la lista (ItemRow) ------------------------------------------- */
@@ -293,7 +397,8 @@ html {
 }
 
 .item-name {
-  font-size: 17px;
+  font-family: var(--font-hand);
+  font-size: 22px;
   font-weight: 500;
 }
 
@@ -306,15 +411,20 @@ html {
   padding: 3px;
 }
 
-.step.v-btn {
+.step .v-icon {
   font-size: 20px;
-  font-weight: 400;
-  line-height: 1;
 }
 
 .stepper-qty {
-  min-width: 22px;
-  font-size: 16px;
+  width: 28px;
+  font-family: var(--font-hand);
+  font-size: 22px;
+  line-height: 1;
+  /* Caveat deja mucho aire arriba y abajo de las cifras: centrar su caja no
+     centra el número. Recortando la línea a la altura de las cifras, el
+     align-center del selector centra el número de verdad. */
+  text-box: trim-both cap alphabetic;
+  font-variant-numeric: tabular-nums;
 }
 
 /* --- Páginas con navegación ----------------------------------------------- */
@@ -344,8 +454,9 @@ html {
 }
 
 .shop-eyebrow {
+  font-family: var(--font-sans);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   opacity: 0.85;
@@ -356,12 +467,12 @@ html {
   min-width: 0;
   padding: 0 14px;
   background: rgb(255 255 255 / 16%);
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 400;
 }
 
 .shop-count {
-  font-size: 34px;
+  font-size: 42px;
   font-weight: 600;
   line-height: 1.15;
 }
@@ -379,7 +490,6 @@ html {
   width: 30px;
   height: 30px;
   border: 2px solid #c7c3cc;
-  font-size: 16px;
 }
 
 .shop-check-on {
@@ -387,12 +497,14 @@ html {
 }
 
 .shop-name {
-  font-size: 18px;
+  font-family: var(--font-hand);
+  font-size: 23px;
   font-weight: 500;
 }
 
 .shop-qty {
-  font-size: 15px;
+  font-family: var(--font-hand);
+  font-size: 19px;
 }
 
 .shop-foot {
@@ -411,12 +523,13 @@ html {
 }
 
 .hist-date {
-  font-size: 16px;
+  font-size: 20px;
 }
 
-.hist-toggle {
-  font-size: 18px;
-  line-height: 1;
+.hist-total {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--teal);
 }
 
 .hist-body {
@@ -424,16 +537,57 @@ html {
 }
 
 .hist-line {
-  font-size: 15px;
+  font-family: var(--font-hand);
+  font-size: 19px;
   color: #4e3557;
+  font-weight: 500;
 }
 
 .hist-qty {
-  font-size: 15px;
+  font-family: var(--font-hand);
+  font-size: 19px;
 }
 
 .hist-repeat.v-btn {
-  font-size: 15px;
+  font-size: 19px;
+}
+
+/* La línea del total, separada de los productos por una raya fina. */
+.hist-price {
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+/* Un botón con pinta de campo: el mismo borde que «Añadir producto…». */
+.hist-price-field {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.hist-price-field:focus-visible {
+  outline: none;
+  border-color: var(--teal);
+}
+
+.hist-price-field .v-icon {
+  color: var(--placeholder);
+}
+
+/* Sin precio todavía: el texto en el gris del placeholder de los campos. */
+.hist-price-empty {
+  color: var(--placeholder);
+}
+
+/* El importe en la hoja del Historial: el campo del nombre, con el «€». */
+.total-field .v-field__input,
+.total-field .v-text-field__suffix {
+  font-size: 30px;
 }
 
 /* --- Tag NFC -------------------------------------------------------------- */
@@ -478,7 +632,7 @@ html {
 .nfc-core {
   width: 120px;
   height: 120px;
-  font-size: 26px;
+  font-size: 32px;
   letter-spacing: 0.06em;
 }
 
@@ -487,9 +641,11 @@ html {
 }
 
 .h-nfc {
-  font-size: 28px;
+  font-family: var(--font-hand);
+  font-size: 34px;
   line-height: 1.15;
   text-wrap: pretty;
+  font-weight: 600;
 }
 
 .nfc-link.v-btn {

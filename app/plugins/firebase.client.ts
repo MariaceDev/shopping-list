@@ -1,24 +1,13 @@
-import { initializeApp, getApps, type FirebaseApp } from 'firebase/app'
+import { initializeApp, getApps } from 'firebase/app'
 import {
   connectAuthEmulator,
   getAuth,
   onAuthStateChanged,
   signInAnonymously,
-  type Auth,
   type User,
 } from 'firebase/auth'
-import {
-  connectFirestoreEmulator,
-  getFirestore,
-  type Firestore,
-} from 'firebase/firestore'
-
-export interface FirebaseServices {
-  app: FirebaseApp
-  auth: Auth
-  db: Firestore
-  user: User
-}
+import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore'
+import type { FirebaseServices } from '#shared/types/Firebase.type'
 
 /**
  * Arranca Firebase y deja una sesión anónima lista antes de que se pinte
